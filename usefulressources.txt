@@ -1,0 +1,7 @@
+https://www.sitepoint.com/css-inheritance-introduction/#list-css-properties-inherit
+
+
+CSI Pt ; Pl ; Pb ; Pr $ z
+          Erase Rectangular Area (DECERA), VT400 and up.
+            Pt ; Pl ; Pb ; Pr denotes the rectangle.
+
