@@ -1,4 +1,4 @@
-import ReactReconciler from "react-reconciler"
+import ReactReconciler from "react-reconciler";
 import { Element, ElementProps } from "../abstract/Element";
 import TextNode from "../abstract/TextNode";
 import PTAL from "../ptal";
@@ -8,10 +8,7 @@ import all from "../tags/all";
 
 const Reconciler = ReactReconciler({
   // Elements creation
-  createInstance: (
-    type: keyof typeof all,
-    props: ElementProps,
-  ) => {
+  createInstance: (type: keyof typeof all, props: ElementProps) => {
     return new all[type]([], props);
   },
   createTextInstance: (text) => {
@@ -25,11 +22,18 @@ const Reconciler = ReactReconciler({
   appendChild: (parentInstance: Element, child: Element | TextNode) => {
     parentInstance.append(child);
   },
-  appendChildToContainer: (parentInstance: Element, child: Element | TextNode) => {
+  appendChildToContainer: (
+    parentInstance: Element,
+    child: Element | TextNode
+  ) => {
     parentInstance.append(child);
   },
   preparePortalMount: () => {},
-  insertBefore: (parentInstance: Element, child: Element | TextNode, beforeChild: Element | TextNode) => {
+  insertBefore: (
+    parentInstance: Element,
+    child: Element | TextNode,
+    beforeChild: Element | TextNode
+  ) => {
     parentInstance.insertBefore(child, beforeChild);
   },
 
@@ -53,7 +57,7 @@ const Reconciler = ReactReconciler({
   removeChild: (parentInstance: Element, child: Element | TextNode) => {
     parentInstance.remove(child);
   },
-  clearContainer: (element: Element) => element.content = [],
+  clearContainer: (element: Element) => (element.content = []),
 
   // Data gather
   getRootHostContext: () => {
@@ -88,13 +92,10 @@ const CustomRenderer = {
     const container = Reconciler.createContainer(renderDom, 0, false, null); // Creates root fiber node.
 
     const parentComponent = null; // Since there is no parent (since this is the root fiber). We set parentComponent to null.
-    Reconciler.updateContainer(
-      element,
-      container,
-      parentComponent,
-      () => renderDom.render(),
+    Reconciler.updateContainer(element, container, parentComponent, () =>
+      renderDom.render()
     ); // Start reconcilation and render the result
-  }
+  },
 };
 
 export default CustomRenderer;
