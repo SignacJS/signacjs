@@ -10,8 +10,8 @@ function App() {
     return () => clearInterval(secondsInterval);
   });
   return (
-    <div style={{ backgroundColor: [255, 255, 255] }}>
-      Hello world {seconds}
+    <div style={{ backgroundColor: [255, 0, 0], width: [100, '%'], height: [100, '%']  }}>
+      errrrr wait hold on {seconds}
     </div>
   );
 }

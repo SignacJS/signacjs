@@ -73,7 +73,6 @@ export default class PTAL extends Element {
   }
   render(): CellPlane {
     const rendered = super.render();
-    debugger;
     const renderedStr = rendered
       .map((cellLine: CellLine) => {
         return cellLine

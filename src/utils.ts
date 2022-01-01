@@ -1,10 +1,11 @@
 import Cell, { CellLine, CellPlane, CellUnit } from "./abstract/Cell";
+import { Element } from "./abstract/Element";
 
 const pad3d = (
   arr: CellPlane,
   w: number,
   h: number,
-  e: number = 0
+  e: number = 0,
 ): CellPlane => {
   arr = arr.map((line: CellLine): CellLine => {
     return line.map((unit: CellUnit): CellUnit => {

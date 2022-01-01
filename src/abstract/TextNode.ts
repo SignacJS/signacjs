@@ -14,7 +14,7 @@ class TextNode {
   toCellPlane(): CellPlane {
     return CellPlane.from(
       this.str.split("\n").map((line: string) => {
-        return line.split("").map((char) => [new Cell(char)]);
+        return line.split("").map((char) => [new Cell(char, this.parent)]);
       })
     );
   }

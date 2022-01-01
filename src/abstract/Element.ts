@@ -19,10 +19,8 @@ type ElementStyle = BaseStyle & DisplayBlock;
 interface RenderOptions {
   replacePercentWithContentW: boolean;
   replacePercentWithContentH: boolean;
-  forceContentW: boolean;
-  forceContentH: boolean;
-  forceContentChildW: boolean;
-  forceContentChildH: boolean;
+  forceContent: boolean;
+  forceContentChild: boolean;
 }
 
 type ElementRenderer = (
@@ -41,6 +39,8 @@ class Element {
   props: ElementProps;
   parent?: Element;
   rootElement?: PTAL;
+  style: ElementStyle &
+    Record<string, Not<any, "inherit" | "unset" | "initial">>;
   context = {};
   constructor(
     content: (Element | TextNode)[],
@@ -85,7 +85,7 @@ class Element {
   }
 
   static renderers: ElementRenderer[] = [
-    (previousRender, el) => {
+    (previousRender, el, renderOptions) => {
       // Render the content + add text color
       const cellPlaneArray: CellPlane[] = [];
       const content = el.content;
@@ -93,8 +93,12 @@ class Element {
         const prevNode = content[i - 1];
         let currNode = content[i];
 
+        const dataToProvide: Partial<RenderOptions> = {};
+
+        if (renderOptions.forceContentChild) dataToProvide.forceContent = true;
+
         if (!prevNode) {
-          cellPlaneArray.push(currNode.toCellPlane());
+          cellPlaneArray.push(currNode.toCellPlane(dataToProvide));
           continue;
         }
 
@@ -104,12 +108,12 @@ class Element {
           cellPlaneArray[cellPlaneArray.length - 1] = merge(
             "X",
             cellPlaneArray[cellPlaneArray.length - 1],
-            content[i].toCellPlane()
+            content[i].toCellPlane(dataToProvide)
           );
           continue;
         }
 
-        cellPlaneArray.push(currNode.toCellPlane());
+        cellPlaneArray.push(currNode.toCellPlane(dataToProvide));
       }
       return merge("Y", ...cellPlaneArray);
     },
@@ -121,7 +125,7 @@ class Element {
       if (
         el.style.width === "content" ||
         undeterminable ||
-        renderOptions.forceContentW
+        renderOptions.forceContent
       ) {
         width = previousRender[0]?.length || 0;
       } else {
@@ -130,30 +134,13 @@ class Element {
       if (
         el.style.height === "content" ||
         undeterminable ||
-        renderOptions.forceContentH
+        renderOptions.forceContent
       ) {
         height = previousRender.length;
       } else {
         height = el.height;
       }
-      return merge("Z", previousRender, new CellPlane(height, width, 1));
-    },
-    (previousRender, el) => {
-      // Render the backgroundColor
-      const bgColor = el.style.backgroundColor;
-      if (bgColor === "transparent") return previousRender;
-      return CellPlane.from(
-        previousRender.map((cellLine: CellLine) => {
-          return cellLine.map((cellUnit: CellUnit) => {
-            const [firstCell, ...otherCells] = cellUnit;
-            firstCell.attributes.backgroundColor = bgColor as Not<
-              any,
-              "inherit" | "unset"
-            >;
-            return [firstCell, ...otherCells];
-          });
-        })
-      );
+      return merge("Z", new CellPlane(height, width, 1, el), previousRender);
     },
   ];
   static defaultStyling: ElementStyle &
@@ -176,10 +163,8 @@ class Element {
     const fullRenderOptions = {
       replacePercentWithContentW: false,
       replacePercentWithContentH: false,
-      forceContentW: false,
-      forceContentH: false,
-      forceContentChildW: false,
-      forceContentChildH: false,
+      forceContent: false,
+      forceContentChild: false,
       ...renderOptions,
     };
     return Element.renderers.reduce(
@@ -199,7 +184,7 @@ class Element {
     if (isParent && arg in this) return this[arg as keyof this];
     if (!this.parent)
       throw new Error("Cannot request data upwards if I have no parent");
-    return this.parent.dataUp(arg);
+    return this.parent.dataUp(arg, true);
   }
 
   append(element: Element | TextNode) {
@@ -248,7 +233,7 @@ class Element {
       result =
         ((this.dataUp(
           viewportProperties[WoH[from]],
-          dependsOnParent
+          !dependsOnParent
         ) as number) /
           100) *
         amount; // man is this function giving me trouble
@@ -267,7 +252,7 @@ class Element {
     let baseRender;
 
     if (this.style.width === "content" || undeterminable) {
-      baseRender = Element.renderers[0]([], this, {});
+      baseRender = Element.renderers[0]([], this, { forceContentChild: true });
       width = baseRender[0]?.length || 0;
     } else if (this.style.width === "auto" && this.style.height !== "auto") {
       width = this.convert(this.style.height as Not<any, "content">, "h", true);
@@ -288,7 +273,7 @@ class Element {
     let baseRender;
 
     if (this.style.height === "content" || undeterminable) {
-      baseRender = Element.renderers[0]([], this, {});
+      baseRender = Element.renderers[0]([], this, { forceContentChild: true });
       height = baseRender?.length || 0;
     } else if (this.style.width !== "auto" && this.style.height === "auto") {
       height = this.convert(this.style.width as Not<any, "content">, "w", true);

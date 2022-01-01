@@ -2,7 +2,7 @@ import { color as blend } from "color-blend";
 import { bgColorProcessStr } from "../sequences/colors";
 import { color } from "../styles/types";
 
-// Generate a cell class capable of storing a character, as well as other metadata
+import { Element } from "./Element";
 
 export interface Attributes {
   backgroundColor: color;
@@ -10,8 +10,7 @@ export interface Attributes {
 
 export default class Cell {
   char: string | null;
-  attributes: Partial<Attributes> = {};
-  parent?: Element;
+  parent?: InstanceType<typeof Element>;
   constructor(char: string | null = null, parent?: Element) {
     if (char && char.length > 1)
       throw new Error("Cells are only supposed to hold 1 character");
@@ -19,25 +18,28 @@ export default class Cell {
     this.parent = parent;
   }
   isTransparent() {
-    if (this.attributes.backgroundColor) return false;
+    if (this.parent?.style?.backgroundColor) return false;
     if (this.char !== null) return false;
     return true;
   }
 }
 
 export class CellUnit extends Array<Cell> {
-  constructor(Zext: number) {
+  constructor(Zext: number, parent?: Element) {
     super(Zext);
     for (let i = 0; i < Zext; i++) {
-      this[i] = new Cell();
+      this[i] = new Cell(null, parent);
     }
   }
   calculateBackgroundColor() {}
   render() {
-    const text = this.reverse().find((cell) => !cell.isTransparent());
+    const reversedArr = [...this].reverse();
+    const text = reversedArr.find((cell) => !cell.isTransparent());
+    const hasBgColor = reversedArr.find((cell) => cell.parent?.style?.backgroundColor !== 'transparent'
+      && cell.parent?.style?.backgroundColor !== undefined);
     return bgColorProcessStr(
       text?.char || " ",
-      text?.attributes.backgroundColor || "initial"
+      hasBgColor?.parent?.style?.backgroundColor || "initial"
     );
   }
   static from(cellUnitWannabe: Cell[]) {
@@ -49,10 +51,10 @@ export class CellUnit extends Array<Cell> {
   }
 }
 export class CellLine extends Array<CellUnit> {
-  constructor(Xext: number, Zext: number) {
+  constructor(Xext: number, Zext: number, parent?: Element) {
     super(Xext);
     for (let i = 0; i < Xext; i++) {
-      this[i] = new CellUnit(Zext);
+      this[i] = new CellUnit(Zext, parent);
     }
   }
   static from(cellLineWannabe: Cell[][]) {
@@ -68,10 +70,10 @@ export class CellLine extends Array<CellUnit> {
   }
 }
 export class CellPlane extends Array<CellLine> {
-  constructor(Yext: number, Xext: number, Zext: number) {
+  constructor(Yext: number, Xext: number, Zext: number, parent?: Element) {
     super(Yext);
     for (let i = 0; i < Yext; i++) {
-      this[i] = new CellLine(Xext, Zext);
+      this[i] = new CellLine(Xext, Zext, parent);
     }
   }
   static from(cellPlaneWannabe: Cell[][][]) {
