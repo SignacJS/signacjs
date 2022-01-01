@@ -286,8 +286,6 @@ class Element {
     }
     return height;
   }
-
-  style: ElementStyle;
 }
 
 export { Element };

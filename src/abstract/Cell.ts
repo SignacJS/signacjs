@@ -35,8 +35,11 @@ export class CellUnit extends Array<Cell> {
   render() {
     const reversedArr = [...this].reverse();
     const text = reversedArr.find((cell) => !cell.isTransparent());
-    const hasBgColor = reversedArr.find((cell) => cell.parent?.style?.backgroundColor !== 'transparent'
-      && cell.parent?.style?.backgroundColor !== undefined);
+    const hasBgColor = reversedArr.find(
+      (cell) =>
+        cell.parent?.style?.backgroundColor !== "transparent" &&
+        cell.parent?.style?.backgroundColor !== undefined
+    );
     return bgColorProcessStr(
       text?.char || " ",
       hasBgColor?.parent?.style?.backgroundColor || "initial"
