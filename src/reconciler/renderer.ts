@@ -8,7 +8,8 @@ import all from "../tags/all";
 
 const Reconciler = ReactReconciler({
   // Elements creation
-  createInstance: (type: keyof typeof all, props: ElementProps) => {
+  createInstance: (type: string, props: ElementProps) => {
+    if (!(type in all)) throw new Error(`${type} is not a valid tag`);
     return new all[type]([], props);
   },
   createTextInstance: (text) => {

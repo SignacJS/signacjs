@@ -3,6 +3,7 @@ import { bgColorProcessStr } from "../sequences/colors";
 import { color } from "../styles/types";
 
 import { Element } from "./Element";
+import TextNode from "./TextNode";
 
 export interface Attributes {
   backgroundColor: color;
@@ -10,8 +11,8 @@ export interface Attributes {
 
 export default class Cell {
   char: string | null;
-  parent?: InstanceType<typeof Element>;
-  constructor(char: string | null = null, parent?: Element) {
+  parent?: Element | TextNode;
+  constructor(char: string | null = null, parent?: Element | TextNode) {
     if (char && char.length > 1)
       throw new Error("Cells are only supposed to hold 1 character");
     this.char = char;
@@ -25,7 +26,7 @@ export default class Cell {
 }
 
 export class CellUnit extends Array<Cell> {
-  constructor(Zext: number, parent?: Element) {
+  constructor(Zext: number = 0, parent?: Element | TextNode) {
     super(Zext);
     for (let i = 0; i < Zext; i++) {
       this[i] = new Cell(null, parent);
@@ -54,7 +55,7 @@ export class CellUnit extends Array<Cell> {
   }
 }
 export class CellLine extends Array<CellUnit> {
-  constructor(Xext: number, Zext: number, parent?: Element) {
+  constructor(Xext: number = 0, Zext: number = 0, parent?: Element | TextNode) {
     super(Xext);
     for (let i = 0; i < Xext; i++) {
       this[i] = new CellUnit(Zext, parent);
@@ -73,7 +74,7 @@ export class CellLine extends Array<CellUnit> {
   }
 }
 export class CellPlane extends Array<CellLine> {
-  constructor(Yext: number, Xext: number, Zext: number, parent?: Element) {
+  constructor(Yext: number = 0, Xext: number = 0, Zext: number = 0, parent?: Element | TextNode) {
     super(Yext);
     for (let i = 0; i < Yext; i++) {
       this[i] = new CellLine(Xext, Zext, parent);

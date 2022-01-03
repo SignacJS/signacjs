@@ -50,9 +50,11 @@ export default class PTAL extends Element {
     this.Seq = new Seq({ in: this.in, out: this.out });
 
     let done = false;
-    function exitHandler() {
+    function exitHandler(err?: Error | number) {
       if (!done) {
         fullOptions.out.write(`${Seq.escape(switchToNormal)}\n`);
+        if (err instanceof Error) throw err;
+        else process.exitCode = err;
         done = true;
       }
       return process.exit(process.exitCode);
@@ -65,8 +67,7 @@ export default class PTAL extends Element {
     process.on("SIGINT", exitHandler);
 
     // catches uncaught exceptions
-    process.on("uncaughtException", (err) => console.error(err));
-    process.on("uncaughtException", exitHandler);
+    process.prependListener("uncaughtException", exitHandler);
   }
   renderUp(): CellPlane {
     return this.render();

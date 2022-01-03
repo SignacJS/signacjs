@@ -13,6 +13,7 @@ import TextNode from "./TextNode";
 import PTAL from "../ptal";
 import Cell, { CellLine, CellPlane, CellUnit } from "./Cell";
 import { Not } from "../types";
+import EventEmitter from 'events';
 
 type ElementStyle = BaseStyle & DisplayBlock;
 
@@ -33,7 +34,7 @@ export interface ElementProps {
   style: Partial<ElementStyle>;
 }
 
-class Element {
+class Element extends EventEmitter {
   private styling: Partial<ElementStyle>;
   content: (Element | TextNode)[];
   props: ElementProps;
@@ -47,6 +48,7 @@ class Element {
     props: Partial<ElementProps> = {},
     rootElement?: PTAL
   ) {
+    super();
     let currentElement = this;
     const fullProps: ElementProps = {
       style: {},
@@ -97,8 +99,12 @@ class Element {
 
         if (renderOptions.forceContentChild) dataToProvide.forceContent = true;
 
-        if (!prevNode) {
+        if (!prevNode || prevNode.constructor.name === 'Br') {
           cellPlaneArray.push(currNode.toCellPlane(dataToProvide));
+          continue;
+        }
+
+        if (currNode.constructor.name === 'Br') {
           continue;
         }
 
@@ -263,7 +269,7 @@ class Element {
         true
       );
     }
-    return width;
+    return Math.round(width);
   }
 
   get height() {
@@ -284,7 +290,7 @@ class Element {
         true
       );
     }
-    return height;
+    return Math.round(height);
   }
 }
 

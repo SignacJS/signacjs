@@ -3,8 +3,8 @@ import { Element } from "./abstract/Element";
 
 const pad3d = (
   arr: CellPlane,
-  w: number,
-  h: number,
+  w: number = 0,
+  h: number = 0,
   e: number = 0
 ): CellPlane => {
   arr = arr.map((line: CellLine): CellLine => {
@@ -116,19 +116,21 @@ const merge = (
     */
     const maxZ = Math.max(
       ...cellPlaneArray.flat(2).map((cellUnit: CellUnit) => cellUnit.length)
-    ); // get maxE elevation of text
+    ); // get maxZ elevation of text
     /*
-      +-+
-     / /|
-    +-+ +-+   \
-    |K|/ /|   |
-    +-+-+ +   |
-    |E|L|/|   |
-    +-+-+ +-+ + maxZ
-    |K|U|/ /| |
-    +-+-+-+ + |
-    |W|L|E|/  |
-    +-+-+-+   /
+        +-+-+-+
+       / / / /|
+      +-+-+-+ +
+     / /|E|V|/|
+    +-+ +-+-+ +
+    |K|/ /|A|/|
+    +-+-+ +-+ +
+    |V|L|/|F|/|
+    +-+-+ +-+ + |
+    |/|U|/ /|/ / 
+    +-+-+-+ + /-- maxZ
+    |W|L|E|/ /
+    +-+-+-+ -
     */
     const maxX = Math.max(
       ...cellPlaneArray.flat().map((cellLine: CellLine) => cellLine.length)
